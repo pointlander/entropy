@@ -5,14 +5,28 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"log"
+	"math/cmplx"
 	"os"
+	"sort"
 
 	"github.com/mjibson/go-dsp/fft"
 )
+
+// Entropy returns the entropy of the given image
+func Entropy(x [][]complex128) complex128 {
+	var sum complex128
+	for _, r := range x {
+		for _, c := range r {
+			sum += c * cmplx.Log(c)
+		}
+	}
+	return -sum
+}
 
 func main() {
 	input, err := os.Open("lenna.png")
@@ -29,6 +43,7 @@ func main() {
 	b := img.Bounds()
 	set := image.NewRGBA(b)
 	xx := make([][]complex128, b.Max.Y)
+	zz := make([]uint8, b.Max.Y*b.Max.X)
 	for y := 0; y < b.Max.Y; y++ {
 		xx[y] = make([]complex128, b.Max.X)
 		for x := 0; x < b.Max.X; x++ {
@@ -36,12 +51,26 @@ func main() {
 			pixel := color.GrayModel.Convert(original)
 			gray, _ := pixel.(color.Gray)
 			xx[y][x] = complex(float64(gray.Y), 0)
+			zz[y*b.Max.X+x] = gray.Y
 			set.Set(x, y, pixel)
 		}
 	}
 
 	y := fft.FFT2(xx)
-	_ = y
+	entropy := Entropy(y)
+	fmt.Println("original", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
+
+	sort.Slice(zz, func(i, j int) bool {
+		return zz[i] < zz[j]
+	})
+	for y := 0; y < b.Max.Y; y++ {
+		for x := 0; x < b.Max.X; x++ {
+			xx[y][x] = complex(float64(zz[y*b.Max.X+x]), 0)
+		}
+	}
+	y = fft.FFT2(xx)
+	entropy = Entropy(y)
+	fmt.Println("sorted", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
 
 	output, err := os.Create("gray.jpg")
 	if err != nil {
