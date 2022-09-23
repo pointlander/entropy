@@ -31,7 +31,8 @@ func Entropy(x [][]complex128) complex128 {
 
 func main() {
 	rnd := rand.New(rand.NewSource(1))
-	input, err := os.Open("lenna.png")
+	os.MkdirAll("gray", 0755)
+	input, err := os.Open("images/image04.png")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -86,7 +87,7 @@ func main() {
 	entropy = Entropy(y)
 	fmt.Println("sorted", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
 
-	output, err := os.Create("gray.jpg")
+	output, err := os.Create("gray/images04.jpg")
 	if err != nil {
 		panic(err)
 	}
