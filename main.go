@@ -11,6 +11,7 @@ import (
 	"image/png"
 	"log"
 	"math/cmplx"
+	"math/rand"
 	"os"
 	"sort"
 
@@ -29,6 +30,7 @@ func Entropy(x [][]complex128) complex128 {
 }
 
 func main() {
+	rnd := rand.New(rand.NewSource(1))
 	input, err := os.Open("lenna.png")
 	if err != nil {
 		log.Fatal(err)
@@ -59,6 +61,18 @@ func main() {
 	y := fft.FFT2(xx)
 	entropy := Entropy(y)
 	fmt.Println("original", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
+
+	rnd.Shuffle(len(zz), func(i, j int) {
+		zz[i], zz[j] = zz[j], zz[i]
+	})
+	for y := 0; y < b.Max.Y; y++ {
+		for x := 0; x < b.Max.X; x++ {
+			xx[y][x] = complex(float64(zz[y*b.Max.X+x]), 0)
+		}
+	}
+	y = fft.FFT2(xx)
+	entropy = Entropy(y)
+	fmt.Println("shuffled", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
 
 	sort.Slice(zz, func(i, j int) bool {
 		return zz[i] < zz[j]
