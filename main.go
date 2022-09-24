@@ -18,6 +18,14 @@ import (
 	"github.com/mjibson/go-dsp/fft"
 )
 
+func main() {
+	os.MkdirAll("gray", 0755)
+	Process("image01")
+	Process("image02")
+	Process("image03")
+	Process("image04")
+}
+
 // Entropy returns the entropy of the given image
 func Entropy(x [][]complex128) complex128 {
 	var sum complex128
@@ -29,10 +37,10 @@ func Entropy(x [][]complex128) complex128 {
 	return -sum
 }
 
-func main() {
+func Process(name string) {
+	fmt.Println(name)
 	rnd := rand.New(rand.NewSource(1))
-	os.MkdirAll("gray", 0755)
-	input, err := os.Open("images/image04.png")
+	input, err := os.Open(fmt.Sprintf("images/%s.png", name))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -87,7 +95,7 @@ func main() {
 	entropy = Entropy(y)
 	fmt.Println("sorted", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
 
-	output, err := os.Create("gray/images04.jpg")
+	output, err := os.Create(fmt.Sprintf("gray/%s.png", name))
 	if err != nil {
 		panic(err)
 	}
