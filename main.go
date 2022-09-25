@@ -28,9 +28,18 @@ func main() {
 
 // Entropy returns the entropy of the given image
 func Entropy(x [][]complex128) complex128 {
+	var factor complex128
+	for _, r := range x {
+		for _, c := range r {
+			a := complex(cmplx.Abs(c), 0)
+			factor += a * a
+		}
+	}
+	factor = cmplx.Sqrt(factor)
 	var sum complex128
 	for _, r := range x {
 		for _, c := range r {
+			c /= factor
 			sum += c * cmplx.Log(c)
 		}
 	}
