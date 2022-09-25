@@ -78,7 +78,7 @@ func Process(name string) {
 
 	y := fft.FFT2(xx)
 	entropy := Entropy(y)
-	fmt.Println("original", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
+	fmt.Println("original", imag(entropy)/real(entropy), entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
 
 	rnd.Shuffle(len(zz), func(i, j int) {
 		zz[i], zz[j] = zz[j], zz[i]
@@ -90,7 +90,7 @@ func Process(name string) {
 	}
 	y = fft.FFT2(xx)
 	entropy = Entropy(y)
-	fmt.Println("shuffled", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
+	fmt.Println("shuffled", imag(entropy)/real(entropy), entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
 
 	sort.Slice(zz, func(i, j int) bool {
 		return zz[i] < zz[j]
@@ -102,7 +102,7 @@ func Process(name string) {
 	}
 	y = fft.FFT2(xx)
 	entropy = Entropy(y)
-	fmt.Println("sorted", entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
+	fmt.Println("sorted", imag(entropy)/real(entropy), entropy, cmplx.Abs(entropy), cmplx.Phase(entropy))
 
 	output, err := os.Create(fmt.Sprintf("gray/%s.png", name))
 	if err != nil {
